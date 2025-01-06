@@ -7,13 +7,11 @@ namespace ConcertBookingApp
     {
         public ICommand NavigateToConcertsCommand { get; }
         public ICommand NavigateToBookingsCommand { get; }
-        public ICommand NavigateToAboutCommand { get; }
 
         public MainPageViewModel()
         {
             NavigateToConcertsCommand = new Command(OnNavigateToConcerts);
             NavigateToBookingsCommand = new Command(OnNavigateToBookings);
-            NavigateToAboutCommand = new Command(OnNavigateToAbout);
         }
 
         private async void OnNavigateToConcerts()
@@ -24,11 +22,6 @@ namespace ConcertBookingApp
         private async void OnNavigateToBookings()
         {
             await Shell.Current.GoToAsync("//BookingsPage");
-        }
-
-        private async void OnNavigateToAbout()
-        {
-            await Shell.Current.GoToAsync("//AboutPage");
         }
     }
 }

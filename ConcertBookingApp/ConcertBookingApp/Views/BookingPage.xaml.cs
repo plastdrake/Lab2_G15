@@ -1,9 +1,12 @@
-namespace ConcertBookingApp.Views;
+using Microsoft.Maui.Controls;
 
-public partial class BookingPage : ContentPage
+namespace ConcertBookingApp.Views
 {
-	public BookingPage()
-	{
-		InitializeComponent();
-	}
+    public partial class BookingPage : ContentPage
+    {
+        public BookingPage()
+        {
+            InitializeComponent();
+        }
+    }
 }

@@ -28,13 +28,6 @@
                     CornerRadius="10"
                     Command="{Binding NavigateToBookingsCommand}" />
 
-            <Button Text="About Us"
-                    FontSize="18"
-                    BackgroundColor="#4CAF50"
-                    TextColor="White"
-                    CornerRadius="10"
-                    Command="{Binding NavigateToAboutCommand}" />
-
         </VerticalStackLayout>
     </ScrollView>
 </ContentPage>
