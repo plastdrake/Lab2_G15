@@ -1,0 +1,7 @@
+﻿
+namespace ConcertBookingAPI.DTOs
+{
+    public class ConcertDto
+    {
+    }
+}
