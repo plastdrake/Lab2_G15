@@ -2,11 +2,17 @@
 {
     using ConcertBookingAPI.Models;
     using Microsoft.EntityFrameworkCore;
+    using Microsoft.EntityFrameworkCore.Diagnostics;
 
     public class BookingContext : DbContext
     {
         public BookingContext(DbContextOptions<BookingContext> options) : base(options)
         {
+        }
+
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            optionsBuilder.ConfigureWarnings(warnings => warnings.Ignore(RelationalEventId.PendingModelChangesWarning));
         }
 
         public DbSet<Concert> Concerts { get; set; }
@@ -37,6 +43,7 @@
                 new Performance { Id = 1, ConcertId = 1, DateTime = DateTime.Now.AddDays(1), Location = "Venue 1" },
                 new Performance { Id = 2, ConcertId = 2, DateTime = DateTime.Now.AddDays(2), Location = "Venue 2" }
             );
+
         }
     }
 }

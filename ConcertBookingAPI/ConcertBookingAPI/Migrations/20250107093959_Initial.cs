@@ -3,10 +3,12 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
+#pragma warning disable CA1814 // Prefer jagged arrays over multidimensional
+
 namespace ConcertBookingAPI.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialCreate : Migration
+    public partial class Initial : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -65,6 +67,24 @@ namespace ConcertBookingAPI.Migrations
                         principalTable: "Performances",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.InsertData(
+                table: "Concerts",
+                columns: new[] { "Id", "Description", "Title" },
+                values: new object[,]
+                {
+                    { 1, "Description A", "Concert A" },
+                    { 2, "Description B", "Concert B" }
+                });
+
+            migrationBuilder.InsertData(
+                table: "Performances",
+                columns: new[] { "Id", "ConcertId", "DateTime", "Location" },
+                values: new object[,]
+                {
+                    { 1, 1, new DateTime(2025, 1, 8, 10, 39, 59, 34, DateTimeKind.Local).AddTicks(5968), "Venue 1" },
+                    { 2, 2, new DateTime(2025, 1, 9, 10, 39, 59, 36, DateTimeKind.Local).AddTicks(5005), "Venue 2" }
                 });
 
             migrationBuilder.CreateIndex(
