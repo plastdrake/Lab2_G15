@@ -24,7 +24,9 @@
                             <Label Text="{Binding CustomerEmail}" FontSize="14" />
                             <Label Text="{Binding Concert.Title}" FontSize="18" />
                             <Label Text="{Binding Performance.DateTime, StringFormat='Performance Date: {0:MM/dd/yyyy hh:mm tt}'}" FontSize="14" />
-                            <Button Margin="10" Text="Delete" Command="{Binding Path=BindingContext.DeleteBookingCommand, Source={x:Static viewmodels:BookingViewModel.Instance}}" CommandParameter="{Binding .}" />
+                            <Button Margin="10" Text="Delete" 
+                                    Command="{Binding Path=DeleteBookingCommand, Source={x:Static viewmodels:BookingViewModel.Instance}}" 
+                                    CommandParameter="{Binding .}" />
                         </StackLayout>
                     </Frame>
                 </DataTemplate>
