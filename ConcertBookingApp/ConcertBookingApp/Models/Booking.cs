@@ -15,5 +15,7 @@ namespace ConcertBookingApp.Models
         // Foreign Key and Navigation property for Performance
         public int PerformanceId { get; set; } // Foreign Key
         public Performance Performance { get; set; } // Navigation Property
+
+        public Concert Concert { get; set; }
     }
 }

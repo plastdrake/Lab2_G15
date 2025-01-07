@@ -21,7 +21,7 @@ namespace ConcertBookingApp
 
         private async void OnNavigateToBookings()
         {
-            await Shell.Current.GoToAsync("//BookingsPage");
+            await Shell.Current.GoToAsync("//BookingPage");
         }
     }
 }
