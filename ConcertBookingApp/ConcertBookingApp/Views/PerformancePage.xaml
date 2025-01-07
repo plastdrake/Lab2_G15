@@ -3,6 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:viewmodels="clr-namespace:ConcertBookingApp.ViewModels"
              x:Class="ConcertBookingApp.Views.PerformancePage"
+             BindingContext="{Binding Source={x:Static viewmodels:PerformanceViewModel.Instance}}"
              Title="Performance Page">
 
     <ContentPage.ToolbarItems>
@@ -20,7 +21,9 @@
                         <StackLayout>
                             <Label Text="{Binding Location}" FontSize="18" FontAttributes="Bold" />
                             <Label Text="{Binding DateTime, StringFormat='{0:MMM dd, yyyy HH:mm}'}" FontSize="14" />
-                            <Button Text="Book Performance" Command="{Binding Path=BindingContext.BookPerformanceCommand, Source={x:Reference Name=PerformancePage}}" CommandParameter="{Binding Id}" />
+                            <Button Text="Book Performance" 
+                                    Command="{Binding Path=BookPerformanceCommand, Source={x:Static viewmodels:PerformanceViewModel.Instance}}" 
+                                    CommandParameter="{Binding Id}" />
                         </StackLayout>
                     </Frame>
                 </DataTemplate>
