@@ -4,13 +4,15 @@ using System.Linq;
 using System.Windows.Input;
 using Microsoft.Maui.Controls;
 using System.ComponentModel;
+using System.Threading.Tasks;
+using ConcertBookingApp.Services;
 
 namespace ConcertBookingApp.ViewModels
 {
     public class BookingViewModel : INotifyPropertyChanged
     {
         // Singleton instance for the ViewModel
-        public static BookingViewModel Instance { get; } = new BookingViewModel();
+        public static BookingViewModel Instance { get; } = new BookingViewModel(new ApiService(new HttpClient()));
 
         // Implementing the INotifyPropertyChanged interface
         public event PropertyChangedEventHandler PropertyChanged;
@@ -107,52 +109,55 @@ namespace ConcertBookingApp.ViewModels
         public ICommand DeleteBookingCommand { get; set; }
         public ICommand BackCommand { get; set; }
 
-        public BookingViewModel()
+        // Injecting IApiService
+        private readonly IApiService _apiService;
+
+        public BookingViewModel(IApiService apiService)
         {
+            _apiService = apiService;
+
             // Initialize commands
             AddBookingCommand = new Command(OnAddBooking);
             DeleteBookingCommand = new Command<Booking>(OnDeleteBooking);
             BackCommand = new Command(OnBack);
 
-            // Temporary sample data for testing
-            Concerts = new ObservableCollection<Concert>
-            {
-                new Concert
-                {
-                    Id = 1,
-                    Title = "Rock Fest",
-                    Performances = new ObservableCollection<Performance>
-                    {
-                        new Performance { Id = 1, Location = "Arena 1", DateTime = DateTime.Now },
-                        new Performance { Id = 2, Location = "Arena 2", DateTime = DateTime.Now.AddDays(1) }
-                    }
-                },
-                new Concert
-                {
-                    Id = 2,
-                    Title = "Jazz Night",
-                    Performances = new ObservableCollection<Performance>
-                    {
-                        new Performance { Id = 3, Location = "Jazz Arena", DateTime = DateTime.Now.AddDays(2) }
-                    }
-                }
-            };
+            // Fetch Concerts from the API
+            LoadConcerts();
+        }
 
-            // Adding some initial bookings for testing
-            Bookings.Add(new Booking { CustomerName = "John Doe", CustomerEmail = "john@example.com", Performance = Concerts[0].Performances.First(), Concert = Concerts[0] });
-            Bookings.Add(new Booking { CustomerName = "Jane Smith", CustomerEmail = "jane@example.com", Performance = Concerts[1].Performances.First(), Concert = Concerts[1] });
+        // Fetch Concerts from API
+        private async void LoadConcerts()
+        {
+            try
+            {
+                var concerts = await _apiService.GetConcertsAsync();
+                Concerts = new ObservableCollection<Concert>(concerts);
+            }
+            catch (Exception ex)
+            {
+                await Application.Current.MainPage.DisplayAlert("Error", $"Failed to load concerts: {ex.Message}", "OK");
+            }
         }
 
         // Method to update the Performances list when a concert is selected
-        private void UpdatePerformances()
+        private async void UpdatePerformances()
         {
             if (SelectedConcert != null)
             {
-                Performances = new ObservableCollection<Performance>(SelectedConcert.Performances);
+                try
+                {
+                    // Fetch Performances for selected concert
+                    var performances = await _apiService.GetPerformancesForConcertAsync(SelectedConcert.Id);
+                    Performances = new ObservableCollection<Performance>(performances);
 
-                // Automatically select the first performance if available
-                if (Performances.Any())
-                    SelectedPerformance = Performances.First();
+                    // Automatically select the first performance if available
+                    if (Performances.Any())
+                        SelectedPerformance = Performances.First();
+                }
+                catch (Exception ex)
+                {
+                    await Application.Current.MainPage.DisplayAlert("Error", $"Failed to load performances: {ex.Message}", "OK");
+                }
             }
             else
             {
@@ -161,16 +166,16 @@ namespace ConcertBookingApp.ViewModels
             }
         }
 
-        private void OnAddBooking()
+        private async void OnAddBooking()
         {
             if (SelectedPerformance == null || string.IsNullOrWhiteSpace(NewCustomerName) || string.IsNullOrWhiteSpace(NewCustomerEmail))
             {
                 // Show error if performance or customer details are missing
-                Application.Current.MainPage.DisplayAlert("Error", "Please fill in all fields and select a performance", "OK");
+                await Application.Current.MainPage.DisplayAlert("Error", "Please fill in all fields and select a performance", "OK");
                 return;
             }
 
-            // Add new booking
+            // Create new booking object
             var newBooking = new Booking
             {
                 CustomerName = NewCustomerName,
@@ -179,8 +184,17 @@ namespace ConcertBookingApp.ViewModels
                 Concert = SelectedConcert // Set the concert for the booking
             };
 
-            Bookings.Add(newBooking);
-            ClearBookingForm();
+            try
+            {
+                // Send booking data via API
+                var createdBooking = await _apiService.CreateBookingAsync(newBooking);
+                Bookings.Add(createdBooking);
+                ClearBookingForm();
+            }
+            catch (Exception ex)
+            {
+                await Application.Current.MainPage.DisplayAlert("Error", $"Failed to create booking: {ex.Message}", "OK");
+            }
         }
 
         private async void OnDeleteBooking(Booking booking)

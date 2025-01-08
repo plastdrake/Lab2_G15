@@ -15,7 +15,6 @@ namespace ConcertBookingApp.Services
         public ApiService(HttpClient httpClient)
         {
             _httpClient = httpClient;
-            // Ensure that we add the correct headers, for example for JSON content
             _httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
         }
 
@@ -23,7 +22,7 @@ namespace ConcertBookingApp.Services
         public async Task<List<Concert>> GetConcertsAsync()
         {
             var response = await _httpClient.GetAsync("api/concerts");
-            response.EnsureSuccessStatusCode();  // Throws exception if status code is not successful
+            response.EnsureSuccessStatusCode();
             var content = await response.Content.ReadAsStringAsync();
             return JsonConvert.DeserializeObject<List<Concert>>(content);
         }
@@ -37,6 +36,15 @@ namespace ConcertBookingApp.Services
             return JsonConvert.DeserializeObject<Concert>(content);
         }
 
+        // Get performances by concert ID (new)
+        public async Task<List<Performance>> GetPerformancesForConcertAsync(int concertId)
+        {
+            var response = await _httpClient.GetAsync($"api/performances/ByConcert/{concertId}");
+            response.EnsureSuccessStatusCode();
+            var content = await response.Content.ReadAsStringAsync();
+            return JsonConvert.DeserializeObject<List<Performance>>(content);
+        }
+
         // Create a booking
         public async Task<Booking> CreateBookingAsync(Booking booking)
         {
@@ -45,23 +53,6 @@ namespace ConcertBookingApp.Services
             var content = await response.Content.ReadAsStringAsync();
             return JsonConvert.DeserializeObject<Booking>(content);
         }
-
-        // Get all performances
-        public async Task<List<Performance>> GetPerformancesAsync()
-        {
-            var response = await _httpClient.GetAsync("api/performances");
-            response.EnsureSuccessStatusCode();
-            var content = await response.Content.ReadAsStringAsync();
-            return JsonConvert.DeserializeObject<List<Performance>>(content);
-        }
-
-        // Get a specific performance by ID
-        public async Task<Performance> GetPerformanceByIdAsync(int id)
-        {
-            var response = await _httpClient.GetAsync($"api/performances/{id}");
-            response.EnsureSuccessStatusCode();
-            var content = await response.Content.ReadAsStringAsync();
-            return JsonConvert.DeserializeObject<Performance>(content);
-        }
     }
+
 }

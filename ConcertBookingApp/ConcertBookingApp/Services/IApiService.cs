@@ -11,8 +11,7 @@ namespace ConcertBookingApp.Services
         Task<Concert> GetConcertByIdAsync(int id);
 
         // Methods for Performances
-        Task<List<Performance>> GetPerformancesAsync();
-        Task<Performance> GetPerformanceByIdAsync(int id);
+        Task<List<Performance>> GetPerformancesForConcertAsync(int concertId);  // Updated
 
         // Methods for Bookings
         Task<Booking> CreateBookingAsync(Booking booking);
