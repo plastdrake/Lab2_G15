@@ -1,6 +1,6 @@
 ﻿namespace ConcertBookingAPI.Repositories
 {
-    public interface IRepository
+    public interface IConcertRepository
     {
     }
 }
