@@ -1,4 +1,5 @@
 ﻿using ConcertBookingApp.Models;
+using ConcertBookingApp.Services;
 using System.Collections.ObjectModel;
 using System.Windows.Input;
 using Microsoft.Maui.Controls;
@@ -8,7 +9,7 @@ namespace ConcertBookingApp.ViewModels
     public class ConcertsViewModel
     {
         // Singleton Instance
-        public static ConcertsViewModel Instance { get; } = new ConcertsViewModel();
+        public static ConcertsViewModel Instance { get; private set; }
 
         // ObservableCollection for Concerts
         public ObservableCollection<Concert> Concerts { get; set; }
@@ -19,54 +20,56 @@ namespace ConcertBookingApp.ViewModels
         // Command for back navigation
         public ICommand BackCommand { get; set; }
 
-        public ConcertsViewModel()
+        private readonly IApiService _apiService;
+
+        // Constructor with IApiService dependency injection
+        public ConcertsViewModel(IApiService apiService)
         {
-            // Initialize the Concerts collection with some sample data
-            Concerts = new ObservableCollection<Concert>
-            {
-                new Concert
-                {
-                    Id = 1,
-                    Title = "Rock Fest",
-                    Performances = new ObservableCollection<Performance>
-                    {
-                        new Performance { Id = 1, DateTime = DateTime.Now.AddDays(1), Location = "Arena 1" },
-                        new Performance { Id = 2, DateTime = DateTime.Now.AddDays(2), Location = "Arena 2" }
-                    }
-                },
-                new Concert
-                {
-                    Id = 2,
-                    Title = "Jazz Night",
-                    Performances = new ObservableCollection<Performance>
-                    {
-                        new Performance { Id = 3, DateTime = DateTime.Now.AddDays(3), Location = "Jazz Arena" }
-                    }
-                }
-            };
+            _apiService = apiService;  // Save the injected IApiService instance
 
             // Initialize commands
             ViewPerformanceCommand = new Command<int>(OnViewPerformance);
             BackCommand = new Command(OnBack);
+
+            // Initialize the Concerts collection (this will be updated with API calls)
+            Concerts = new ObservableCollection<Concert>();
+
+            // Fetch concerts from the API
+            LoadConcertsAsync();
+        }
+
+        // Static method to initialize the singleton instance
+        public static void Initialize(IApiService apiService)
+        {
+            if (Instance == null)
+            {
+                Instance = new ConcertsViewModel(apiService);
+            }
+        }
+
+        // Method to load concerts from the API
+        private async void LoadConcertsAsync()
+        {
+            var concerts = await _apiService.GetConcertsAsync();
+            if (concerts != null)
+            {
+                foreach (var concert in concerts)
+                {
+                    Concerts.Add(concert);
+                }
+            }
         }
 
         // Method to navigate to the PerformancePage
         private async void OnViewPerformance(int id)
         {
-            // Debug
-            Console.WriteLine("Navigating to PerformancePage...");
-            Console.WriteLine($"Concert ID: {id}");
-
             await Shell.Current.GoToAsync($"///PerformancePage?concertId={id}");
         }
-
 
         // Method to navigate back to the Home page
         private async void OnBack()
         {
-            // Navigate back to the Home page
             await Shell.Current.GoToAsync("//MainPage");
         }
-
     }
 }

@@ -1,9 +1,21 @@
-namespace ConcertBookingApp.Views;
+using ConcertBookingApp.ViewModels;
+using Microsoft.Maui.Controls;
 
-public partial class ConcertsPage : ContentPage
+namespace ConcertBookingApp.Views
 {
-	public ConcertsPage()
-	{
-		InitializeComponent();
-	}
+    public partial class ConcertsPage : ContentPage
+    {
+        private readonly ConcertsViewModel _viewModel;
+
+        public ConcertsPage(ConcertsViewModel viewModel)
+        {
+            InitializeComponent();
+
+            // Assign the injected ViewModel to the local variable
+            _viewModel = viewModel;
+
+            // Set the BindingContext to the ViewModel
+            BindingContext = _viewModel;
+        }
+    }
 }
