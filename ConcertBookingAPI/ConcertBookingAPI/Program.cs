@@ -1,4 +1,5 @@
 using ConcertBookingAPI.Data;
+using ConcertBookingAPI.Repositories;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -20,6 +21,8 @@ builder.Services.AddCors(options =>
 
 // Add controllers
 builder.Services.AddControllers();
+
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
 // Add Swagger/OpenAPI for API documentation
 builder.Services.AddEndpointsApiExplorer();

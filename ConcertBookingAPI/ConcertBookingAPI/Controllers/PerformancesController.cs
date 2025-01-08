@@ -1,7 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using ConcertBookingAPI.Data;
 using ConcertBookingAPI.Models;
+using ConcertBookingAPI.Repositories;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 
 namespace ConcertBookingAPI.Controllers
 {
@@ -9,40 +11,47 @@ namespace ConcertBookingAPI.Controllers
     [Route("api/[controller]")]
     public class PerformancesController : ControllerBase
     {
-        private readonly BookingContext _context;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public PerformancesController(BookingContext context)
+        public PerformancesController(IUnitOfWork unitOfWork)
         {
-            _context = context;
+            _unitOfWork = unitOfWork;
         }
 
         // GET: api/Performances
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Performance>>> GetPerformances()
         {
-            return await _context.Performances.ToListAsync();  // Return all performances directly
+            var performances = await _unitOfWork.Performances.GetAllAsync();
+            return Ok(performances);
         }
 
         // GET: api/Performances/1
         [HttpGet("{id}")]
         public async Task<ActionResult<Performance>> GetPerformance(int id)
         {
-            var performance = await _context.Performances.FindAsync(id);
-
+            var performance = await _unitOfWork.Performances.GetByIdAsync(id);
             if (performance == null)
             {
                 return NotFound();
             }
+            return Ok(performance);
+        }
 
-            return performance;  // Return the performance directly
+        // GET: api/Performances/ByConcert/1
+        [HttpGet("ByConcert/{concertId}")]
+        public async Task<ActionResult<IEnumerable<Performance>>> GetPerformancesByConcert(int concertId)
+        {
+            var performances = await _unitOfWork.Performances.GetPerformancesByConcertIdAsync(concertId);
+            return Ok(performances);
         }
 
         // POST: api/Performances
         [HttpPost]
         public async Task<ActionResult<Performance>> PostPerformance(Performance performance)
         {
-            _context.Performances.Add(performance);
-            await _context.SaveChangesAsync();
+            await _unitOfWork.Performances.AddAsync(performance);
+            await _unitOfWork.SaveChangesAsync();
 
             return CreatedAtAction(nameof(GetPerformance), new { id = performance.Id }, performance);
         }
@@ -51,15 +60,44 @@ namespace ConcertBookingAPI.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeletePerformance(int id)
         {
-            var performance = await _context.Performances.FindAsync(id);
-
+            var performance = await _unitOfWork.Performances.GetByIdAsync(id);
             if (performance == null)
             {
                 return NotFound();
             }
 
-            _context.Performances.Remove(performance);
-            await _context.SaveChangesAsync();
+            _unitOfWork.Performances.Delete(performance);
+            await _unitOfWork.SaveChangesAsync();
+
+            return NoContent();
+        }
+
+        // PUT: api/Performances/1
+        [HttpPut("{id}")]
+        public async Task<IActionResult> PutPerformance(int id, Performance performance)
+        {
+            if (id != performance.Id)
+            {
+                return BadRequest();
+            }
+
+            _unitOfWork.Performances.Update(performance);
+
+            try
+            {
+                await _unitOfWork.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (await _unitOfWork.Performances.GetByIdAsync(id) == null)
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    throw;
+                }
+            }
 
             return NoContent();
         }
