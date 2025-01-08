@@ -2,6 +2,7 @@
 {
     using ConcertBookingAPI.Models;
     using Microsoft.EntityFrameworkCore;
+    using System;
     using Microsoft.EntityFrameworkCore.Diagnostics;
 
     public class BookingContext : DbContext
@@ -21,29 +22,24 @@
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            // Define relationships
+            // Define relationships with delete behaviors
             modelBuilder.Entity<Performance>()
                 .HasOne(p => p.Concert)
                 .WithMany(c => c.Performances)
-                .HasForeignKey(p => p.ConcertId);
+                .HasForeignKey(p => p.ConcertId)
+                .OnDelete(DeleteBehavior.Cascade); // Cascade delete from Concerts to Performances
 
             modelBuilder.Entity<Booking>()
                 .HasOne(b => b.Performance)
                 .WithMany()
-                .HasForeignKey(b => b.PerformanceId);
+                .HasForeignKey(b => b.PerformanceId)
+                .OnDelete(DeleteBehavior.Cascade); // Cascade delete from Performances to Bookings
+        }
 
-            // Seed data for Concerts
-            modelBuilder.Entity<Concert>().HasData(
-                new Concert { Id = 1, Title = "Concert A", Description = "Description A" },
-                new Concert { Id = 2, Title = "Concert B", Description = "Description B" }
-            );
-
-            // Seed Performances or Bookings
-            modelBuilder.Entity<Performance>().HasData(
-                new Performance { Id = 1, ConcertId = 1, DateTime = DateTime.Now.AddDays(1), Location = "Venue 1" },
-                new Performance { Id = 2, ConcertId = 2, DateTime = DateTime.Now.AddDays(2), Location = "Venue 2" }
-            );
-
+        // Call SeedData to initialize data
+        public static void Seed(BookingContext context)
+        {
+            SeedData.Initialize(context);  // Call the SeedData method to populate the DB
         }
     }
 }

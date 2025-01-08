@@ -8,6 +8,8 @@ using ConcertBookingApp.Services;
 
 namespace ConcertBookingApp.ViewModels
 {
+    using System.Runtime.CompilerServices;
+
     public class PerformanceViewModel : INotifyPropertyChanged
     {
         // Singleton instance
@@ -40,7 +42,12 @@ namespace ConcertBookingApp.ViewModels
             LoadPerformancesAsync(concertId);
         }
 
-        public event PropertyChangedEventHandler PropertyChanged;
+        public event PropertyChangedEventHandler? PropertyChanged;
+
+        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = "")
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
 
         public async void LoadPerformancesAsync(int concertId)
         {
@@ -52,6 +59,7 @@ namespace ConcertBookingApp.ViewModels
                 {
                     Performances.Add(performance);
                 }
+                OnPropertyChanged(nameof(Performances));
             }
         }
 
@@ -69,4 +77,5 @@ namespace ConcertBookingApp.ViewModels
             await Shell.Current.GoToAsync("//ConcertsPage");
         }
     }
+
 }

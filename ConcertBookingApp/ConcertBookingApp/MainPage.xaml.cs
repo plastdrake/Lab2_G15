@@ -1,4 +1,5 @@
 ﻿using Microsoft.Maui.Controls;
+using ConcertBookingApp.ViewModels;
 
 namespace ConcertBookingApp
 {
@@ -7,8 +8,6 @@ namespace ConcertBookingApp
         public MainPage()
         {
             InitializeComponent();
-
-            // Optional: Set up additional logic or initialize ViewModel
             BindingContext = new MainPageViewModel();
         }
     }

@@ -24,35 +24,52 @@ namespace ConcertBookingApp.Services
             var response = await _httpClient.GetAsync("api/concerts");
             response.EnsureSuccessStatusCode();
             var content = await response.Content.ReadAsStringAsync();
-            return JsonConvert.DeserializeObject<List<Concert>>(content);
+            return JsonConvert.DeserializeObject<List<Concert>>(content) ?? new List<Concert>();
         }
 
-        // Get a specific concert by ID
         public async Task<Concert> GetConcertByIdAsync(int id)
         {
             var response = await _httpClient.GetAsync($"api/concerts/{id}");
             response.EnsureSuccessStatusCode();
             var content = await response.Content.ReadAsStringAsync();
-            return JsonConvert.DeserializeObject<Concert>(content);
+            var concert = JsonConvert.DeserializeObject<Concert>(content);
+            return concert ?? new Concert
+            {
+                Title = string.Empty,
+                Description = string.Empty,
+                Performances = new List<Performance>()
+            };
         }
 
-        // Get performances by concert ID (new)
         public async Task<List<Performance>> GetPerformancesForConcertAsync(int concertId)
         {
             var response = await _httpClient.GetAsync($"api/performances/ByConcert/{concertId}");
             response.EnsureSuccessStatusCode();
             var content = await response.Content.ReadAsStringAsync();
-            return JsonConvert.DeserializeObject<List<Performance>>(content);
+            return JsonConvert.DeserializeObject<List<Performance>>(content) ?? new List<Performance>();
         }
 
-        // Create a booking
         public async Task<Booking> CreateBookingAsync(Booking booking)
         {
             var response = await _httpClient.PostAsJsonAsync("api/bookings", booking);
             response.EnsureSuccessStatusCode();
             var content = await response.Content.ReadAsStringAsync();
-            return JsonConvert.DeserializeObject<Booking>(content);
+            var deserializedBooking = JsonConvert.DeserializeObject<Booking>(content);
+            return deserializedBooking ?? new Booking
+            {
+                CustomerName = string.Empty,
+                CustomerEmail = string.Empty,
+                Performance = new Performance
+                {
+                    Location = string.Empty,
+                    Concert = new Concert
+                    {
+                        Title = string.Empty,
+                        Description = string.Empty,
+                        Performances = new List<Performance>()
+                    }
+                }
+            };
         }
     }
-
 }

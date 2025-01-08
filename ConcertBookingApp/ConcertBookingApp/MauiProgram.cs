@@ -20,8 +20,9 @@ namespace ConcertBookingApp
                 });
 
             // Register services and ViewModels for DI
-            builder.Services.AddSingleton<IApiService, ApiService>();
+            builder.Services.AddSingleton<IApiService, ApiService>(); // Register ApiService
             builder.Services.AddSingleton<ConcertsViewModel>(); // Register ConcertsViewModel with DI
+            builder.Services.AddSingleton<MainPageViewModel>(); // Register MainPageViewModel with DI
 
             // Register HttpClient for ApiService
             builder.Services.AddHttpClient<IApiService, ApiService>(client =>
@@ -32,10 +33,10 @@ namespace ConcertBookingApp
             });
 
 #if DEBUG
-            builder.Logging.AddDebug();
+            builder.Logging.AddDebug();  // Add debug logging for debugging purposes
 #endif
 
-            return builder.Build();
+            return builder.Build(); // Build and return the MauiApp
         }
     }
 }

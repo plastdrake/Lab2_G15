@@ -3,13 +3,11 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:viewmodels="clr-namespace:ConcertBookingApp.ViewModels"
              x:Class="ConcertBookingApp.Views.ConcertsPage"
-             BindingContext="{Binding Source={x:Static viewmodels:ConcertsViewModel.Instance}}"
              Title="ConcertsPage">
 
     <!-- Add a ToolbarItem for the back button -->
     <ContentPage.ToolbarItems>
         <ToolbarItem Text="Back" Command="{Binding BackCommand}" />
-        <ToolbarItem Text="Performances" Command="{Binding ViewPerformanceCommand}" />
     </ContentPage.ToolbarItems>
 
     <VerticalStackLayout Padding="10">

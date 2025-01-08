@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ConcertBookingAPI.Migrations
 {
     [DbContext(typeof(BookingContext))]
-    [Migration("20250108092219_Update")]
-    partial class Update
+    [Migration("20250108131727_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -70,20 +70,6 @@ namespace ConcertBookingAPI.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Concerts");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            Description = "Description A",
-                            Title = "Concert A"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            Description = "Description B",
-                            Title = "Concert B"
-                        });
                 });
 
             modelBuilder.Entity("ConcertBookingAPI.Models.Performance", b =>
@@ -109,22 +95,6 @@ namespace ConcertBookingAPI.Migrations
                     b.HasIndex("ConcertId");
 
                     b.ToTable("Performances");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            ConcertId = 1,
-                            DateTime = new DateTime(2025, 1, 9, 10, 22, 18, 886, DateTimeKind.Local).AddTicks(5880),
-                            Location = "Venue 1"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            ConcertId = 2,
-                            DateTime = new DateTime(2025, 1, 10, 10, 22, 18, 902, DateTimeKind.Local).AddTicks(9412),
-                            Location = "Venue 2"
-                        });
                 });
 
             modelBuilder.Entity("ConcertBookingAPI.Models.Booking", b =>

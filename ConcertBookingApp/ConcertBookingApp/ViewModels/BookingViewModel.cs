@@ -15,9 +15,9 @@ namespace ConcertBookingApp.ViewModels
         public static BookingViewModel Instance { get; } = new BookingViewModel(new ApiService(new HttpClient()));
 
         // Implementing the INotifyPropertyChanged interface
-        public event PropertyChangedEventHandler PropertyChanged;
+        public event PropertyChangedEventHandler? PropertyChanged;
 
-        private ObservableCollection<Performance> _performances;
+        private ObservableCollection<Performance> _performances = new ObservableCollection<Performance>();
         public ObservableCollection<Performance> Performances
         {
             get => _performances;
@@ -31,7 +31,7 @@ namespace ConcertBookingApp.ViewModels
             }
         }
 
-        private ObservableCollection<Concert> _concerts;
+        private ObservableCollection<Concert> _concerts = new ObservableCollection<Concert>();
         public ObservableCollection<Concert> Concerts
         {
             get => _concerts;
@@ -45,9 +45,21 @@ namespace ConcertBookingApp.ViewModels
             }
         }
 
-        public ObservableCollection<Booking> Bookings { get; set; } = new ObservableCollection<Booking>();
+        private ObservableCollection<Booking> _bookings = new ObservableCollection<Booking>();
+        public ObservableCollection<Booking> Bookings
+        {
+            get => _bookings;
+            set
+            {
+                if (_bookings != value)
+                {
+                    _bookings = value;
+                    OnPropertyChanged(nameof(Bookings)); // Notify that Bookings has changed
+                }
+            }
+        }
 
-        private string _newCustomerName;
+        private string _newCustomerName = string.Empty;
         public string NewCustomerName
         {
             get => _newCustomerName;
@@ -61,7 +73,7 @@ namespace ConcertBookingApp.ViewModels
             }
         }
 
-        private string _newCustomerEmail;
+        private string _newCustomerEmail = string.Empty;
         public string NewCustomerEmail
         {
             get => _newCustomerEmail;
@@ -75,7 +87,7 @@ namespace ConcertBookingApp.ViewModels
             }
         }
 
-        private Performance _selectedPerformance;
+        private Performance _selectedPerformance = null!;
         public Performance SelectedPerformance
         {
             get => _selectedPerformance;
@@ -89,7 +101,7 @@ namespace ConcertBookingApp.ViewModels
             }
         }
 
-        private Concert _selectedConcert;
+        private Concert _selectedConcert = null!;
         public Concert SelectedConcert
         {
             get => _selectedConcert;
@@ -135,34 +147,37 @@ namespace ConcertBookingApp.ViewModels
             }
             catch (Exception ex)
             {
-                await Application.Current.MainPage.DisplayAlert("Error", $"Failed to load concerts: {ex.Message}", "OK");
+                if (Application.Current?.MainPage != null)
+                {
+                    await Application.Current.MainPage.DisplayAlert("Error", $"Failed to load concerts: {ex.Message}", "OK");
+                }
             }
         }
 
-        // Method to update the Performances list when a concert is selected
         private async void UpdatePerformances()
         {
             if (SelectedConcert != null)
             {
                 try
                 {
-                    // Fetch Performances for selected concert
                     var performances = await _apiService.GetPerformancesForConcertAsync(SelectedConcert.Id);
                     Performances = new ObservableCollection<Performance>(performances);
 
-                    // Automatically select the first performance if available
                     if (Performances.Any())
                         SelectedPerformance = Performances.First();
                 }
                 catch (Exception ex)
                 {
-                    await Application.Current.MainPage.DisplayAlert("Error", $"Failed to load performances: {ex.Message}", "OK");
+                    if (Application.Current?.MainPage != null)
+                    {
+                        await Application.Current.MainPage.DisplayAlert("Error", $"Failed to load performances: {ex.Message}", "OK");
+                    }
                 }
             }
             else
             {
                 Performances = new ObservableCollection<Performance>();
-                SelectedPerformance = null;
+                SelectedPerformance = null!;
             }
         }
 
@@ -171,7 +186,10 @@ namespace ConcertBookingApp.ViewModels
             if (SelectedPerformance == null || string.IsNullOrWhiteSpace(NewCustomerName) || string.IsNullOrWhiteSpace(NewCustomerEmail))
             {
                 // Show error if performance or customer details are missing
-                await Application.Current.MainPage.DisplayAlert("Error", "Please fill in all fields and select a performance", "OK");
+                if (Application.Current?.MainPage != null)
+                {
+                    await Application.Current.MainPage.DisplayAlert("Error", "Please fill in all fields and select a performance", "OK");
+                }
                 return;
             }
 
@@ -180,8 +198,7 @@ namespace ConcertBookingApp.ViewModels
             {
                 CustomerName = NewCustomerName,
                 CustomerEmail = NewCustomerEmail,
-                Performance = SelectedPerformance,
-                Concert = SelectedConcert // Set the concert for the booking
+                Performance = SelectedPerformance
             };
 
             try
@@ -193,21 +210,27 @@ namespace ConcertBookingApp.ViewModels
             }
             catch (Exception ex)
             {
-                await Application.Current.MainPage.DisplayAlert("Error", $"Failed to create booking: {ex.Message}", "OK");
+                if (Application.Current?.MainPage != null)
+                {
+                    await Application.Current.MainPage.DisplayAlert("Error", $"Failed to create booking: {ex.Message}", "OK");
+                }
             }
         }
 
         private async void OnDeleteBooking(Booking booking)
         {
-            bool isConfirmed = await Application.Current.MainPage.DisplayAlert(
-                "Delete Booking",
-                $"Are you sure you want to delete the booking for {booking.CustomerName}?",
-                "Yes",
-                "No");
-
-            if (isConfirmed)
+            if (Application.Current?.MainPage != null)
             {
-                Bookings.Remove(booking);
+                bool isConfirmed = await Application.Current.MainPage.DisplayAlert(
+                    "Delete Booking",
+                    $"Are you sure you want to delete the booking for {booking.CustomerName}?",
+                    "Yes",
+                    "No");
+
+                if (isConfirmed)
+                {
+                    Bookings.Remove(booking);
+                }
             }
         }
 
@@ -215,8 +238,8 @@ namespace ConcertBookingApp.ViewModels
         {
             NewCustomerName = string.Empty;
             NewCustomerEmail = string.Empty;
-            SelectedPerformance = null;
-            SelectedConcert = null; // Clear concert selection as well
+            SelectedPerformance = null!;
+            SelectedConcert = null!;
         }
 
         private async void OnBack()

@@ -46,4 +46,12 @@ app.UseAuthorization();
 
 app.MapControllers();
 
+// Seed the database (this will ensure seed data is added when the app starts)
+using (var scope = app.Services.CreateScope())
+{
+    var context = scope.ServiceProvider.GetRequiredService<BookingContext>();
+    context.Database.Migrate(); // Apply any pending migrations
+    SeedData.Initialize(context); // Seed the data (call your method here)
+}
+
 app.Run();

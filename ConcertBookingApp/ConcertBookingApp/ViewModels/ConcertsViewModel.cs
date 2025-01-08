@@ -9,7 +9,7 @@ namespace ConcertBookingApp.ViewModels
     public class ConcertsViewModel
     {
         // Singleton Instance
-        public static ConcertsViewModel Instance { get; private set; }
+        public static ConcertsViewModel? Instance { get; private set; }
 
         // ObservableCollection for Concerts
         public ObservableCollection<Concert> Concerts { get; set; }
@@ -25,7 +25,7 @@ namespace ConcertBookingApp.ViewModels
         // Constructor with IApiService dependency injection
         public ConcertsViewModel(IApiService apiService)
         {
-            _apiService = apiService;  // Save the injected IApiService instance
+            _apiService = apiService ?? throw new ArgumentNullException(nameof(apiService));
 
             // Initialize commands
             ViewPerformanceCommand = new Command<int>(OnViewPerformance);
@@ -50,19 +50,38 @@ namespace ConcertBookingApp.ViewModels
         // Method to load concerts from the API
         private async void LoadConcertsAsync()
         {
-            var concerts = await _apiService.GetConcertsAsync();
-            if (concerts != null)
+            try
             {
-                foreach (var concert in concerts)
+                var concerts = await _apiService.GetConcertsAsync();
+                if (concerts != null)
                 {
-                    Concerts.Add(concert);
+                    foreach (var concert in concerts)
+                    {
+                        Concerts.Add(concert);
+                        Console.WriteLine($"Concert added: {concert.Title}");
+                    }
                 }
+                else
+                {
+                    Console.WriteLine("No concerts returned from API.");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error fetching concerts: {ex.Message}");
             }
         }
 
         // Method to navigate to the PerformancePage
         private async void OnViewPerformance(int id)
         {
+            if (id == 0)
+            {
+                // Handle invalid id, log the error, or display an error message
+                System.Diagnostics.Debug.WriteLine("Invalid concert id: " + id);
+                return;
+            }
+
             await Shell.Current.GoToAsync($"///PerformancePage?concertId={id}");
         }
 
